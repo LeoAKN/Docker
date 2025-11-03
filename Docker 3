@@ -1,0 +1,41 @@
+# Full Stack AWS Deployment (React + Node)
+# One-file procedure
+
+# 1. Backend EC2
+sudo yum update -y
+curl -sL https://rpm.nodesource.com/setup_18.x | sudo bash -
+sudo yum install -y nodejs git
+git clone <backend_repo>
+cd backend_repo
+npm install
+npm run build || true
+nohup node server.js &
+
+# 2. Frontend EC2
+sudo yum update -y
+curl -sL https://rpm.nodesource.com/setup_18.x | sudo bash -
+sudo yum install -y nodejs git
+git clone <frontend_repo>
+cd frontend_repo
+npm install
+npm run build
+sudo npm install -g serve
+nohup serve -s build -l 80 &
+
+# 3. Load Balancer
+# Create Application Load Balancer in AWS console
+# Listener: HTTP:80
+# Target group: backend EC2 instances
+# Health check: / or /api
+
+# 4. Networking
+# Security groups:
+# - ALB inbound: 80 from 0.0.0.0/0
+# - Backend inbound: from ALB only
+# - Frontend inbound: 80 from 0.0.0.0/0
+
+# 5. Route 53 (optional)
+# Point domain A record to ALB DNS
+
+# Result: Public URL -> ALB -> backend EC2
+# Frontend served directly from its EC2 Public IP or domain
